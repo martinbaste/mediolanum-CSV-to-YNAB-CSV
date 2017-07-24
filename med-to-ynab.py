@@ -1,4 +1,4 @@
-#convert mediolanum csv to ynab csv
+#Converts mediolanum csv to ynab csv
 #Usage: python3 med-to-ynab.py infile.csv outfile.csv
 
 import sys
