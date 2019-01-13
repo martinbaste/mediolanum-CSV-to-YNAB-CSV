@@ -1,22 +1,27 @@
 #Converts mediolanum csv to ynab csv
 #Usage: python3 med-to-ynab.py infile.csv outfile.csv
 
-import sys
+import sys, io
+import csv
+from datetime import datetime
 
 start = False
-with open(sys.argv[1], 'r') as i, open(sys.argv[2], 'w') as o:
+with io.open(sys.argv[1], encoding='latin-1') as i, open(sys.argv[2], 'w') as o:
 
 	#Output header
 	o.write("Date,Payee,Category,Memo,Outflow,Inflow\n");
 
-	for line in i:
-		if start: 
-			line = line.strip()
-			fields_in = line.split(';')
+	csvreader = csv.reader(i, delimiter=",",quotechar='"')
 
-			fields_out = [fields_in[0]] #Date
+	for line in csvreader:
+		if start:
+			if line[0] == "":
+				continue
+			fields_in = line
+			date = datetime.strptime(fields_in[0], "%d-%m-%y")
+			fields_out = [date.strftime("%m-%d-%Y")] #Date
 			#Payee will be first two words of "concept"
-			payee = '"' + ' '.join(fields_in[1].split(' ')[:2]) + '"'
+			payee = '"' + fields_in[1] + '"'
 			fields_out.append(payee)
 
 			fields_out.append('') #Empty category
@@ -29,7 +34,7 @@ with open(sys.argv[1], 'r') as i, open(sys.argv[2], 'w') as o:
 
 			#Write
 			o.write(','.join(fields_out) + '\n')
-		elif line[0] == 'F': #First line starts with "Fecha..."
+		elif line[0][0] == 'F': #First line starts with "Fecha..."
 			start = True
 
 
